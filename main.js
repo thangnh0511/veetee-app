@@ -1,24 +1,41 @@
 import './style.css'
-import javascriptLogo from './javascript.svg'
-import viteLogo from '/vite.svg'
-import { setupCounter } from './counter.js'
+// import javascriptLogo from './javascript.svg'
+// import viteLogo from '/vite.svg'
 
-document.querySelector('#app').innerHTML = `
-  <div>
-    <a href="https://vitejs.dev" target="_blank">
-      <img src="${viteLogo}" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" target="_blank">
-      <img src="${javascriptLogo}" class="logo vanilla" alt="JavaScript logo" />
-    </a>
-    <h1>Hello Vite!</h1>
-    <div class="card">
-      <button id="counter" type="button"></button>
-    </div>
-    <p class="read-the-docs">
-      Click on the Vite logo to learn more
-    </p>
-  </div>
-`
+async function fetchAllProducts() {
+  const products = await fetch('/api/notion_fetchProducts')
+    .then((res) => res.json().then((data) => data.results));
+    // const results = []
+    // products.map((api) => results.push(api.properties));
+    console.log(products);
 
-setupCounter(document.querySelector('#counter'))
+    document.querySelector('.products').innerHTML = products.map(
+      (item) => ` 
+          <div class="ui card product__card round-4">
+            <div class="ui slide masked reveal image">
+              <img src="${item.properties.Image1.url}" class="visible content">
+              <img src="${item.properties.Image2.url}" class="hidden content">
+            </div>
+            <div class="content">
+              <a class="header">${item.properties.Title.title[0].plain_text}</a>
+              <div class="meta">
+                <div class="product__content">
+                  ${item.properties.Describe.rich_text[0].plain_text}
+                </div>
+                <div class="product__price">${item.properties.Price.number}</div>
+              </div>
+            </div>
+            <div class="extra content">
+              <div class="ui vertical animated secondary button round-4 color-primary" tabindex="0">
+                <div class="hidden content">Order</div>
+                <div class="visible content">${item.properties.Stock.number} items left <i class="shop icon"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        `).join('');
+}
+
+
+fetchAllProducts();
+
